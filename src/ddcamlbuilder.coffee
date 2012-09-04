@@ -62,20 +62,31 @@ do ->
       """
 
   # Condition helpers
-  caml.Or  = (comparators...) -> new caml.Condition 'Or', comparators...
-  caml.And = (comparators...) -> new caml.Condition 'And', comparators...
+  for c in ['And', 'Or']
+    caml[c] = (comparators...) -> new caml.Condition c, comparators...
 
   # Comparator helpers
-  caml.Eq = (field, value) ->
-    field = new caml.Field(field) unless field instanceof caml.Field
-    new caml.Comparator 'Eq', field, value
+  for c in ['BeginsWith', 'Contains', 'DateRangesOverlap', 'Eq', 'Geq', 'Gt',
+      'Includes', 'Leq', 'Lt', 'Neq', 'NotIncludes']
+    caml[c] = (field, value) ->
+      field = new caml.Field(field) unless field instanceof caml.Field
+      new caml.Comparator c, field, value
+  for c in ['IsNotNull', 'IsNull']
+    caml[c] = (field) ->
+      field = new caml.Field(field) unless field instanceof caml.Field
+      new caml.Comparator c, field
 
   # Value helpers
-  caml.Text = (val) -> new caml.Value val, 'Text'
+  for v in ['Integer', 'Text', 'Note', 'DateTime', 'Counter', 'Choice', 'Lookup',
+    'Boolean', 'Number', 'Currency', 'URL', 'Computed', 'Threading', 'Guid',
+    'MultiChoice', 'GridChoice', 'Calculated', 'File', 'Attachments', 'User',
+    'Recurrence', 'CrossProjectLink', 'ModStat', 'ContentTypeId', 'PageSeparator',
+    'ThreadIndex', 'WorkflowStatus', 'AllDayEvent', 'WorkflowEventType']
+    caml[v] = (val) -> new caml.Value val, v
 
   if module?
     # Node.js exports
-    module?.exports = caml
+    module.exports = caml
   else
     # Browsers
     _global = this

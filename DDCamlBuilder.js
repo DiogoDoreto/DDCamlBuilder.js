@@ -5,7 +5,7 @@
     __slice = [].slice;
 
   (function() {
-    var caml, _global, _previousCaml;
+    var c, caml, v, _global, _i, _j, _k, _l, _len, _len1, _len2, _len3, _previousCaml, _ref, _ref1, _ref2, _ref3;
     caml = {};
     caml.Value = (function() {
 
@@ -189,35 +189,48 @@
       return Query;
 
     })();
-    caml.Or = function() {
-      var comparators;
-      comparators = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return (function(func, args, ctor) {
-        ctor.prototype = func.prototype;
-        var child = new ctor, result = func.apply(child, args), t = typeof result;
-        return t == "object" || t == "function" ? result || child : child;
-      })(caml.Condition, ['Or'].concat(__slice.call(comparators)), function(){});
-    };
-    caml.And = function() {
-      var comparators;
-      comparators = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return (function(func, args, ctor) {
-        ctor.prototype = func.prototype;
-        var child = new ctor, result = func.apply(child, args), t = typeof result;
-        return t == "object" || t == "function" ? result || child : child;
-      })(caml.Condition, ['And'].concat(__slice.call(comparators)), function(){});
-    };
-    caml.Eq = function(field, value) {
-      if (!(field instanceof caml.Field)) {
-        field = new caml.Field(field);
-      }
-      return new caml.Comparator('Eq', field, value);
-    };
-    caml.Text = function(val) {
-      return new caml.Value(val, 'Text');
-    };
+    _ref = ['And', 'Or'];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      c = _ref[_i];
+      caml[c] = function() {
+        var comparators;
+        comparators = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return (function(func, args, ctor) {
+          ctor.prototype = func.prototype;
+          var child = new ctor, result = func.apply(child, args), t = typeof result;
+          return t == "object" || t == "function" ? result || child : child;
+        })(caml.Condition, [c].concat(__slice.call(comparators)), function(){});
+      };
+    }
+    _ref1 = ['BeginsWith', 'Contains', 'DateRangesOverlap', 'Eq', 'Geq', 'Gt', 'Includes', 'Leq', 'Lt', 'Neq', 'NotIncludes'];
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      c = _ref1[_j];
+      caml[c] = function(field, value) {
+        if (!(field instanceof caml.Field)) {
+          field = new caml.Field(field);
+        }
+        return new caml.Comparator(c, field, value);
+      };
+    }
+    _ref2 = ['IsNotNull', 'IsNull'];
+    for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+      c = _ref2[_k];
+      caml[c] = function(field) {
+        if (!(field instanceof caml.Field)) {
+          field = new caml.Field(field);
+        }
+        return new caml.Comparator(c, field);
+      };
+    }
+    _ref3 = ['Integer', 'Text', 'Note', 'DateTime', 'Counter', 'Choice', 'Lookup', 'Boolean', 'Number', 'Currency', 'URL', 'Computed', 'Threading', 'Guid', 'MultiChoice', 'GridChoice', 'Calculated', 'File', 'Attachments', 'User', 'Recurrence', 'CrossProjectLink', 'ModStat', 'ContentTypeId', 'PageSeparator', 'ThreadIndex', 'WorkflowStatus', 'AllDayEvent', 'WorkflowEventType'];
+    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+      v = _ref3[_l];
+      caml[v] = function(val) {
+        return new caml.Value(val, v);
+      };
+    }
     if (typeof module !== "undefined" && module !== null) {
-      return typeof module !== "undefined" && module !== null ? module.exports = caml : void 0;
+      return module.exports = caml;
     } else {
       _global = this;
       _previousCaml = _global.caml;
