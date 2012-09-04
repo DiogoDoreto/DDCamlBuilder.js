@@ -12,6 +12,13 @@ assert.equal field.toString(), '<FieldRef Name=\'fieldname\' />', 'Test caml.Fie
 field_opt = new caml.Field 'fieldname', opt: 'value'
 assert.equal field_opt.toString(), '<FieldRef Name=\'fieldname\' opt="value" />', 'Test caml.Field with option'
 
+comp = new caml.Comparator 'Eq', field
+assert.equal comp.toString(), '''
+  <Eq>
+    <FieldRef Name=\'fieldname\' />
+  </Eq>
+  ''', 'Test caml.Comparator without value'
+
 comp = new caml.Comparator 'Eq', field, value
 assert.equal comp.toString(), '''
   <Eq>
@@ -91,5 +98,69 @@ assert.equal cond_and.toString(), '''
     </Or>
   </And>
   ''', 'Test caml.Condition with 2 other conditions'
+
+cond_and = new caml.Condition 'And', cond, cond, cond
+assert.equal cond_and.toString(), '''
+  <And>
+    <Or>
+      <Eq>
+        <FieldRef Name='fieldname' />
+        <Value Type='Text'>my_value</Value>
+      </Eq>
+      <Or>
+        <Eq>
+          <FieldRef Name='fieldname' />
+          <Value Type='Text'>my_value</Value>
+        </Eq>
+        <Eq>
+          <FieldRef Name='fieldname' />
+          <Value Type='Text'>my_value</Value>
+        </Eq>
+      </Or>
+    </Or>
+    <And>
+      <Or>
+        <Eq>
+          <FieldRef Name='fieldname' />
+          <Value Type='Text'>my_value</Value>
+        </Eq>
+        <Or>
+          <Eq>
+            <FieldRef Name='fieldname' />
+            <Value Type='Text'>my_value</Value>
+          </Eq>
+          <Eq>
+            <FieldRef Name='fieldname' />
+            <Value Type='Text'>my_value</Value>
+          </Eq>
+        </Or>
+      </Or>
+      <Or>
+        <Eq>
+          <FieldRef Name='fieldname' />
+          <Value Type='Text'>my_value</Value>
+        </Eq>
+        <Or>
+          <Eq>
+            <FieldRef Name='fieldname' />
+            <Value Type='Text'>my_value</Value>
+          </Eq>
+          <Eq>
+            <FieldRef Name='fieldname' />
+            <Value Type='Text'>my_value</Value>
+          </Eq>
+        </Or>
+      </Or>
+    </And>
+  </And>
+  ''', 'Test caml.Condition with 3 other conditions'
+
+cond = new caml.Condition 'And', comp
+assert.equal cond.toString(), '''
+  <Eq>
+    <FieldRef Name='fieldname' />
+    <Value Type='Text'>my_value</Value>
+  </Eq>
+  ''', 'caml.Condition with only one item should render only the item'
 
 console.log 'Ok.'

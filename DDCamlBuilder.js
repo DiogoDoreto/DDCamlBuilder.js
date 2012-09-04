@@ -91,7 +91,7 @@
       }
 
       Comparator.prototype.toString = function(level) {
-        var i, ind, _ref;
+        var i, ind;
         if (level == null) {
           level = 0;
         }
@@ -103,7 +103,7 @@
           }
           return _results;
         })()).join('');
-        return "" + ind + "<" + this.comparator + ">\n" + (this.field.toString(level + 1)) + "\n" + ((_ref = this.value) != null ? _ref.toString(level + 1) : void 0) + "\n" + ind + "</" + this.comparator + ">";
+        return "" + ind + "<" + this.comparator + ">\n" + (this.field.toString(level + 1)) + (this.value != null ? '\n' + this.value.toString(level + 1) : '') + "\n" + ind + "</" + this.comparator + ">";
       };
 
       return Comparator;
@@ -119,8 +119,6 @@
 
         this.toString = __bind(this.toString, this);
 
-        this.side_a = null;
-        this.side_b = null;
         this.add.apply(this, comparators);
       }
 
@@ -128,6 +126,9 @@
         var i, ind;
         if (level == null) {
           level = 0;
+        }
+        if (this.side_b == null) {
+          return this.side_a.toString(level);
         }
         ind = ((function() {
           var _i, _ref, _results;
@@ -153,14 +154,7 @@
             this.side_b = comparator;
             continue;
           }
-          if (this.side_b instanceof caml.Comparator) {
-            this.side_b = new caml.Condition(this.condition, this.side_b, comparator);
-            continue;
-          }
-          if (this.side_b instanceof caml.Condition) {
-            this.side_b.add(comparator);
-            continue;
-          }
+          this.side_b = new caml.Condition(this.condition, this.side_b, comparator);
         }
         return this;
       };

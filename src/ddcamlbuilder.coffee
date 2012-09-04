@@ -21,17 +21,16 @@ do ->
       ind = (' ' for i in [0...level*2]).join('')
       """
       #{ind}<#{@comparator}>
-      #{@field.toString(level+1)}
-      #{@value?.toString(level+1)}
+      #{@field.toString(level+1)}#{if @value? then '\n'+@value.toString(level+1) else ''}
       #{ind}</#{@comparator}>
       """
 
   class caml.Condition
     constructor: (@condition, comparators...) ->
-      @side_a = null
-      @side_b = null
       @add comparators...
     toString: (level = 0) =>
+      return @side_a.toString(level) unless @side_b?
+
       ind = (' ' for i in [0...level*2]).join('')
       """
       #{ind}<#{@condition}>
@@ -47,13 +46,7 @@ do ->
         unless @side_b?
           @side_b = comparator
           continue
-
-        if @side_b instanceof caml.Comparator
-          @side_b = new caml.Condition @condition, @side_b, comparator
-          continue
-        if @side_b instanceof caml.Condition
-          @side_b.add comparator
-          continue
+        @side_b = new caml.Condition @condition, @side_b, comparator
       return this
 
   class caml.Query
