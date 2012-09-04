@@ -50,31 +50,53 @@ do ->
       return this
 
   class caml.Query
-    constructor: (@condition = null) ->
+    orderByFields: []
+    constructor: (@condition, orderByFields) ->
+      @addOrderBy orderByFields
     toString: (level = 0) =>
       ind = (' ' for i in [0...level*2]).join('')
+
+      orderByQuery = ''
+      if @orderByFields.length > 0
+        orderByQuery = """
+          \n#{ind}  <OrderBy>
+          #{ind}    #{@orderByFields.join('\n    '+ind)}
+          #{ind}  </OrderBy>
+          """
+
       """
       #{ind}<Query>
       #{ind}  <Where>
       #{@condition.toString(level+2)}
-      #{ind}  </Where>
+      #{ind}  </Where>#{orderByQuery}
       #{ind}</Query>
       """
+    addOrderBy: (_orderByFields = []) =>
+      if Object::toString.call(_orderByFields) isnt '[object Array]'
+        _orderByFields = [_orderByFields]
+
+      _orderByFields = for f in _orderByFields
+        if f instanceof caml.Field then f else new caml.Field f
+      @orderByFields = @orderByFields.concat _orderByFields
+
+
 
   # Condition helpers
   for c in ['And', 'Or']
-    caml[c] = (comparators...) -> new caml.Condition c, comparators...
+    do (c) -> caml[c] = (comparators...) -> new caml.Condition c, comparators...
 
   # Comparator helpers
   for c in ['BeginsWith', 'Contains', 'DateRangesOverlap', 'Eq', 'Geq', 'Gt',
       'Includes', 'Leq', 'Lt', 'Neq', 'NotIncludes']
-    caml[c] = (field, value) ->
-      field = new caml.Field(field) unless field instanceof caml.Field
-      new caml.Comparator c, field, value
+    do (c) ->
+      caml[c] = (field, value) ->
+        field = new caml.Field(field) unless field instanceof caml.Field
+        new caml.Comparator c, field, value
   for c in ['IsNotNull', 'IsNull']
-    caml[c] = (field) ->
-      field = new caml.Field(field) unless field instanceof caml.Field
-      new caml.Comparator c, field
+    do (c) ->
+      caml[c] = (field) ->
+        field = new caml.Field(field) unless field instanceof caml.Field
+        new caml.Comparator c, field
 
   # Value helpers
   for v in ['Integer', 'Text', 'Note', 'DateTime', 'Counter', 'Choice', 'Lookup',
@@ -82,7 +104,7 @@ do ->
     'MultiChoice', 'GridChoice', 'Calculated', 'File', 'Attachments', 'User',
     'Recurrence', 'CrossProjectLink', 'ModStat', 'ContentTypeId', 'PageSeparator',
     'ThreadIndex', 'WorkflowStatus', 'AllDayEvent', 'WorkflowEventType']
-    caml[v] = (val) -> new caml.Value val, v
+    do (v) -> caml[v] = (val) -> new caml.Value val, v
 
   if module?
     # Node.js exports

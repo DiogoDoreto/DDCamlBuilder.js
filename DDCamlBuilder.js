@@ -5,7 +5,7 @@
     __slice = [].slice;
 
   (function() {
-    var c, caml, v, _global, _i, _j, _k, _l, _len, _len1, _len2, _len3, _previousCaml, _ref, _ref1, _ref2, _ref3;
+    var c, caml, v, _fn, _fn1, _fn2, _fn3, _global, _i, _j, _k, _l, _len, _len1, _len2, _len3, _previousCaml, _ref, _ref1, _ref2, _ref3;
     caml = {};
     caml.Value = (function() {
 
@@ -164,14 +164,19 @@
     })();
     caml.Query = (function() {
 
-      function Query(condition) {
-        this.condition = condition != null ? condition : null;
+      Query.prototype.orderByFields = [];
+
+      function Query(condition, orderByFields) {
+        this.condition = condition;
+        this.addOrderBy = __bind(this.addOrderBy, this);
+
         this.toString = __bind(this.toString, this);
 
+        this.addOrderBy(orderByFields);
       }
 
       Query.prototype.toString = function(level) {
-        var i, ind;
+        var i, ind, orderByQuery;
         if (level == null) {
           level = 0;
         }
@@ -183,16 +188,43 @@
           }
           return _results;
         })()).join('');
-        return "" + ind + "<Query>\n" + ind + "  <Where>\n" + (this.condition.toString(level + 2)) + "\n" + ind + "  </Where>\n" + ind + "</Query>";
+        orderByQuery = '';
+        if (this.orderByFields.length > 0) {
+          orderByQuery = "\n" + ind + "  <OrderBy>\n" + ind + "    " + (this.orderByFields.join('\n    ' + ind)) + "\n" + ind + "  </OrderBy>";
+        }
+        return "" + ind + "<Query>\n" + ind + "  <Where>\n" + (this.condition.toString(level + 2)) + "\n" + ind + "  </Where>" + orderByQuery + "\n" + ind + "</Query>";
+      };
+
+      Query.prototype.addOrderBy = function(_orderByFields) {
+        var f;
+        if (_orderByFields == null) {
+          _orderByFields = [];
+        }
+        if (Object.prototype.toString.call(_orderByFields) !== '[object Array]') {
+          _orderByFields = [_orderByFields];
+        }
+        _orderByFields = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = _orderByFields.length; _i < _len; _i++) {
+            f = _orderByFields[_i];
+            if (f instanceof caml.Field) {
+              _results.push(f);
+            } else {
+              _results.push(new caml.Field(f));
+            }
+          }
+          return _results;
+        })();
+        return this.orderByFields = this.orderByFields.concat(_orderByFields);
       };
 
       return Query;
 
     })();
     _ref = ['And', 'Or'];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      c = _ref[_i];
-      caml[c] = function() {
+    _fn = function(c) {
+      return caml[c] = function() {
         var comparators;
         comparators = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         return (function(func, args, ctor) {
@@ -201,33 +233,46 @@
           return t == "object" || t == "function" ? result || child : child;
         })(caml.Condition, [c].concat(__slice.call(comparators)), function(){});
       };
+    };
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      c = _ref[_i];
+      _fn(c);
     }
     _ref1 = ['BeginsWith', 'Contains', 'DateRangesOverlap', 'Eq', 'Geq', 'Gt', 'Includes', 'Leq', 'Lt', 'Neq', 'NotIncludes'];
-    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-      c = _ref1[_j];
-      caml[c] = function(field, value) {
+    _fn1 = function(c) {
+      return caml[c] = function(field, value) {
         if (!(field instanceof caml.Field)) {
           field = new caml.Field(field);
         }
         return new caml.Comparator(c, field, value);
       };
+    };
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      c = _ref1[_j];
+      _fn1(c);
     }
     _ref2 = ['IsNotNull', 'IsNull'];
-    for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-      c = _ref2[_k];
-      caml[c] = function(field) {
+    _fn2 = function(c) {
+      return caml[c] = function(field) {
         if (!(field instanceof caml.Field)) {
           field = new caml.Field(field);
         }
         return new caml.Comparator(c, field);
       };
+    };
+    for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+      c = _ref2[_k];
+      _fn2(c);
     }
     _ref3 = ['Integer', 'Text', 'Note', 'DateTime', 'Counter', 'Choice', 'Lookup', 'Boolean', 'Number', 'Currency', 'URL', 'Computed', 'Threading', 'Guid', 'MultiChoice', 'GridChoice', 'Calculated', 'File', 'Attachments', 'User', 'Recurrence', 'CrossProjectLink', 'ModStat', 'ContentTypeId', 'PageSeparator', 'ThreadIndex', 'WorkflowStatus', 'AllDayEvent', 'WorkflowEventType'];
-    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-      v = _ref3[_l];
-      caml[v] = function(val) {
+    _fn3 = function(v) {
+      return caml[v] = function(val) {
         return new caml.Value(val, v);
       };
+    };
+    for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+      v = _ref3[_l];
+      _fn3(v);
     }
     if (typeof module !== "undefined" && module !== null) {
       return module.exports = caml;
