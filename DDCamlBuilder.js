@@ -176,7 +176,7 @@
       }
 
       Query.prototype.toString = function(level) {
-        var i, ind, orderByQuery;
+        var i, ind, orderByQuery, whereQuery;
         if (level == null) {
           level = 0;
         }
@@ -188,11 +188,15 @@
           }
           return _results;
         })()).join('');
+        whereQuery = '';
+        if (this.condition != null) {
+          whereQuery = "\n" + ind + "  <Where>\n" + (this.condition.toString(level + 2)) + "\n" + ind + "  </Where>";
+        }
         orderByQuery = '';
         if (this.orderByFields.length > 0) {
           orderByQuery = "\n" + ind + "  <OrderBy>\n" + ind + "    " + (this.orderByFields.join('\n    ' + ind)) + "\n" + ind + "  </OrderBy>";
         }
-        return "" + ind + "<Query>\n" + ind + "  <Where>\n" + (this.condition.toString(level + 2)) + "\n" + ind + "  </Where>" + orderByQuery + "\n" + ind + "</Query>";
+        return "" + ind + "<Query>" + whereQuery + orderByQuery + "\n" + ind + "</Query>";
       };
 
       Query.prototype.addOrderBy = function(_orderByFields) {

@@ -56,6 +56,14 @@ do ->
     toString: (level = 0) =>
       ind = (' ' for i in [0...level*2]).join('')
 
+      whereQuery = ''
+      if @condition?
+        whereQuery = """
+          \n#{ind}  <Where>
+          #{@condition.toString(level+2)}
+          #{ind}  </Where>
+          """
+
       orderByQuery = ''
       if @orderByFields.length > 0
         orderByQuery = """
@@ -65,10 +73,7 @@ do ->
           """
 
       """
-      #{ind}<Query>
-      #{ind}  <Where>
-      #{@condition.toString(level+2)}
-      #{ind}  </Where>#{orderByQuery}
+      #{ind}<Query>#{whereQuery}#{orderByQuery}
       #{ind}</Query>
       """
     addOrderBy: (_orderByFields = []) =>
