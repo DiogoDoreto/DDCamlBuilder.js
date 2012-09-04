@@ -1,0 +1,20 @@
+{
+  "folders":
+  [
+    {
+      "path": "./",
+      "name": "DDCamlBuilder.js"
+    }
+  ],
+  "build_systems":
+  [
+    {
+      "name": "Build",
+      "cmd": "cake.cmd build"
+    },
+    {
+      "name": "Test",
+      "cmd": ["coffee.cmd", "$project_path/test/test"]
+    }
+  ]
+}
